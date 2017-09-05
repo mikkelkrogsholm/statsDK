@@ -29,6 +29,6 @@ The function retrieves a list with a lot of metadata about a certain table.
 }
 }
 \examples{
-metadata <- statsDK::retrieve_metadata("BEV3A")
+metadata <- statsDK::retrieve_metadata("FOLK1A")
 dplyr::glimpse(metadata)
 }

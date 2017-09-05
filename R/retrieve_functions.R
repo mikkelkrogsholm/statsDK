@@ -86,7 +86,7 @@ retrieve_tables <- function(){
 #' @export
 #'
 #' @examples
-#' metadata <- statsDK::retrieve_metadata("BEV3A")
+#' metadata <- statsDK::retrieve_metadata("FOLK1A")
 #' dplyr::glimpse(metadata)
 
 retrieve_metadata <- function(table_id){
@@ -117,31 +117,37 @@ retrieve_metadata <- function(table_id){
 #'
 #' @examples
 #'
-#' metadata <- statsDK::retrieve_metadata("BEV3A")
+#' metadata <- statsDK::retrieve_metadata("FOLK1A")
 #' dplyr::glimpse(metadata)
 #'
 #' # See the variables as a data frame
-#' variables <- get_variables(metadata)
+#' variables <- statsDK::get_variables(metadata)
 #' dplyr::glimpse(variables)
 #'
 #' # Use the param and the settings columns from the variables data to set the
 #' # rigth values for the API call.
-#' df <- retrieve_data("BEV3A", BEVÆGELSEV = "B02", Tid = "2017M06,2017M05")
+#' df <- statsDK::retrieve_data("FOLK1A", ALDER = "*")
 #' dplyr::glimpse(df)
 
 retrieve_data <- function(table_id, ...){
 
   base_url <- paste0("http://api.statbank.dk/v1/data/",
-                     table_id, "/JSONSTAT?lang=en&")
+                     table_id, "/JSONSTAT?lang=en")
 
   params <- list(...)
 
-  url_string <- paste0(names(params), "=", unlist(params))
-  url_string <- paste(url_string, collapse = "&")
+  if(length(params) > 0){
+    url_string <- paste0(names(params), "=", unlist(params))
+    url_string <- paste(url_string, collapse = "&")
 
-  url <- paste0(base_url, url_string)
+    url <- paste0(base_url, "&", url_string)
 
-  url <- utils::URLencode(url)
+    url <- utils::URLencode(url)
+
+    print(url)
+  } else {
+    url <- base_url
+  }
 
   json_data <- rjstat::fromJSONstat(url)
 

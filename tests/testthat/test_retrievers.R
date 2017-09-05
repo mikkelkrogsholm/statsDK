@@ -39,7 +39,7 @@ test_that("we have indeed received meta data", {
 context("Testing retrieve_data")
 
 folk <- suppressMessages(
-  retrieve_data("FOLK1A", "OMRÅDE" = "*")
+  retrieve_data("FOLK1A")
   )
 
 test_that("we have indeed received data", {

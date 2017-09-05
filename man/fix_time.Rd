@@ -19,10 +19,10 @@ fit months or quarters. This function converts them in to proper date strings
 in the format YYYY-MM-DD.
 }
 \examples{
-df <- retrieve_data("BEV3A", BEVÆGELSEV = "B02", Tid = "2017M06,2017M05")
+df <- statsDK::retrieve_data("FOLK1A", TID = "*")
 dplyr::glimpse(df)
 
-df <- fix_time(df)
+df <-  statsDK::fix_time(df)
 dplyr::glimpse(df)
 
 }

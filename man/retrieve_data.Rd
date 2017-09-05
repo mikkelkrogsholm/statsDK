@@ -23,15 +23,15 @@ table ID and some parameters to the API.
 }
 \examples{
 
-metadata <- statsDK::retrieve_metadata("BEV3A")
+metadata <- statsDK::retrieve_metadata("FOLK1A")
 dplyr::glimpse(metadata)
 
 # See the variables as a data frame
-variables <- get_variables(metadata)
+variables <- statsDK::get_variables(metadata)
 dplyr::glimpse(variables)
 
 # Use the param and the settings columns from the variables data to set the
 # rigth values for the API call.
-df <- retrieve_data("BEV3A", BEVÆGELSEV = "B02", Tid = "2017M06,2017M05")
+df <- statsDK::retrieve_data("FOLK1A", ALDER = "*")
 dplyr::glimpse(df)
 }

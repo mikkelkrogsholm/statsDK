@@ -5,7 +5,9 @@ Version: 0.1.0
 Author: Mikkel Freltoft Krogsholm
 Maintainer: Mikkel Freltoft Krogsholm <mikkel@56n.dk>
 Description: Makes it possible through simple functions and commands to get and
-    organize official danish statistics within a wide range of subjects.
+    organize official danish statistics within a wide range of subjects. Visit
+    the <http://statbank.dk/> and <http://api.statbank.dk/console> for further
+    exploration of Statistics Denmark data.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -26,3 +28,5 @@ Suggests: knitr,
     rmarkdown,
     testthat
 VignetteBuilder: knitr
+URL: https://github.com/mikkelkrogsholm/statsDK
+BugReports: https://github.com/mikkelkrogsholm/statsDK/issues
