@@ -1,0 +1,127 @@
+---
+title: "Get started with statsDK"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Get started with statsDK}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This little vignette shows you how to get started with the `statsDK` package.
+
+## The retrievers
+The package has a few "retriever"-functions that are used to retrieve data from Statistics Denmark.
+Those are: `retrieve_subjects()`, `retrieve_tables()`, `retrieve_metadata()` and the `retrieve_data()` functions. 
+
+### retrieve_subjects
+This function retrieves the overall subjects that are available in the API.
+
+### retrieve_tables
+This function retrieves an overview of all the tables in the API. Lets use it to see what data we would like to fetch:
+
+```{r, warning=FALSE, message=FALSE}
+library(statsDK); library(tidyverse); library(stringr)
+
+tables <- retrieve_tables()
+
+glimpse(tables)
+```
+
+Lets say we are interested in marriages. Maybe there is an official data set about marriages that we can use?
+
+First we unnest the variables column:
+```{r}
+tables_long <- tables %>%
+  unnest(variables)
+```
+
+Then we see if we can find something with marriage. We use the `str_detect()` function from the `stringr` package to detect a text pattern matching marriage:
+```{r}
+
+marriage_tables <- tables_long %>%
+  filter(str_detect(tables_long$variables, "marriage"))
+
+glimpse(marriage_tables)
+
+```
+
+Indeed there is. There is the `VIEDAG` table that seems to have data on marriage that we might be interested in. Lets therefore have a look at the meta data for that particular table.
+
+### retrieve_metadata
+This function retrieves meta data for a table - like our `VIEDAG` table.
+
+```{r}
+viedag_meta <- retrieve_metadata("VIEDAG")
+
+glimpse(viedag_meta)
+```
+
+The list of meta data has a lot of information that we can use to determine wether or not to use the data. There is an URL under documentation that we can follow to read a lot more about the data and how it is collected. There is contact information if we still have unanswered questions that need to be answered.
+
+And there is also a part of the list called variables. This is the part we need to determine what we can get from calling that table directly and also how we should call it. We will use the helper function `get_variables()` to get a nice tidy tibble to inspect.
+
+```{r}
+variables <- get_variables(viedag_meta)
+
+glimpse(variables)
+```
+
+Lets see if we can get a short overview of all the different options we have. Lets make a tibble for this vignette that shows the first, middle and last row of each parameter:
+
+```{r}
+variable_overview <- variables %>% 
+  group_by(param) %>%
+  slice(c(1, round(n()/2), n())) %>%
+  ungroup()
+
+variable_overview
+```
+
+From this overview it looks like `Tid` is the year, `VDAG` is the day of the month and `VIMDR` is the month. `VDAG` and `VIMDR` also has a `TOT` that is the total. 
+
+With this newfound knowledge we can now construct an API call to get the data we are interested in.
+
+### retrieve_data
+This is the function that actually retrieves the data that we need.
+
+Lets get the total data for each month of june and december for all the available years. This forces us to construct an API call that shows different aspects.
+
+From the variable overview we did earlier we can see that in order to get the `Total` for days of marriage then we have to use the `TOT` setting for the `VDAG` parameter. And in order to get the month of `June` and `December` we will have to use the `006` and `012` setting for the `VIMDR` parameter. But how do we call all years? Easy, we just have to set that to be an asterix `*`. 
+
+Below is the call to the API:
+
+```{r}
+VIEDAG <- retrieve_data("VIEDAG", Tid = "*", VDAG = "TOT", VIMDR = "006,012")
+```
+
+Let us have a glimpse at the data:
+
+```{r}
+glimpse(VIEDAG)
+```
+
+Finally lets plot it and see what is going on in our new marriage data set:
+
+```{r, fig.width=4*1.618, fig.height=4}
+
+VIEDAG$time <- as.numeric(VIEDAG$time)
+
+ggplot(VIEDAG) +
+  geom_line(aes(x = time, value, group = `month of the marriage`)) +
+  annotate("text", x = 2016.1, y = c(3396, 1721), label = c("June", "December"),
+           hjust = 0) +
+  annotate("point", x = 2016, y = c(3396, 1721)) +
+  xlim(2007, 2017) +
+  labs(y = "Total marriages for the given month", x = "Years") +
+  theme_minimal()
+```
+
+There is quite a spike in the data for December 2012. A lot of people got married in December in that particular year...
+
+Can you figure out why? Make your own API call that calls all days in December for all years and see if you can figure out what made that particular year so different...
+
+
+## Further ressources
+Visit the http://statbank.dk/ and http://api.statbank.dk/console for further exploration of Statistics Denmark data.
