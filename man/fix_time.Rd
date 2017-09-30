@@ -4,11 +4,12 @@
 \alias{fix_time}
 \title{Fixes the time column of a data set}
 \usage{
-fix_time(df)
+fix_time(date_string, as_char = FALSE)
 }
 \arguments{
-\item{df}{a table with a time column from Statistics Denmark. Usually retrieved
-using the \link{retrieve_data} function.}
+\item{date_string}{a string of dates formatted as months or quarters.}
+
+\item{as_char}{whether to return the dates as data objects or character strings.}
 }
 \value{
 a data frame
@@ -19,10 +20,11 @@ fit months or quarters. This function converts them in to proper date strings
 in the format YYYY-MM-DD.
 }
 \examples{
-df <- statsDK::retrieve_data("FOLK1A", TID = "*")
+df <- statsDK::retrieve_data("FOLK1A", TID = "*", ALDER = "IALT",
+                             CIVILSTAND = "TOT", lang = "da")
 dplyr::glimpse(df)
 
-df <-  statsDK::fix_time(df)
+df$TID <- statsDK::fix_time(df$TID)
 dplyr::glimpse(df)
 
 }

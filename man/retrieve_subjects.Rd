@@ -4,7 +4,12 @@
 \alias{retrieve_subjects}
 \title{Retrieves an overview of the subjects from Statistics Denmark}
 \usage{
-retrieve_subjects()
+retrieve_subjects(base_url = "http://api.statbank.dk/v1/")
+}
+\arguments{
+\item{base_url}{is the base url for the API you wish to call. Statistics Denmark
+can sometimes create custom API's that you can use by changing this
+parameter.}
 }
 \value{
 a tibble

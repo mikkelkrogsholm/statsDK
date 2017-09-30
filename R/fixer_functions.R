@@ -6,32 +6,36 @@
 #' fit months or quarters. This function converts them in to proper date strings
 #' in the format YYYY-MM-DD.
 #'
-#' @param df a table with a time column from Statistics Denmark. Usually retrieved
-#'     using the \link{retrieve_data} function.
+#' @param date_string a string of dates formatted as months or quarters.
+#' @param as_char whether to return the dates as data objects or character strings.
 #'
 #' @return a data frame
 #' @export
 #'
 #' @examples
-#' df <- statsDK::retrieve_data("FOLK1A", TID = "*")
+#' df <- statsDK::retrieve_data("FOLK1A", TID = "*", ALDER = "IALT",
+#'                              CIVILSTAND = "TOT", lang = "da")
 #' dplyr::glimpse(df)
 #'
-#' df <-  statsDK::fix_time(df)
+#' df$TID <- statsDK::fix_time(df$TID)
 #' dplyr::glimpse(df)
 #'
-fix_time <- function(df){
+fix_time <- function(date_string, as_char = FALSE){
 
   # Fix quarters
-  df$time <- gsub('(\\d{4})(Q)(1)', '\\1-01-01', df$time)
-  df$time <- gsub('(\\d{4})(Q)(2)', '\\1-04-01', df$time)
-  df$time <- gsub('(\\d{4})(Q)(3)', '\\1-07-01', df$time)
-  df$time <- gsub('(\\d{4})(Q)(4)', '\\1-10-01', df$time)
+  date_string <- gsub('(\\d{4})(Q|K)(1)', '\\1-01-01', date_string)
+  date_string <- gsub('(\\d{4})(Q|K)(2)', '\\1-04-01', date_string)
+  date_string <- gsub('(\\d{4})(Q|K)(3)', '\\1-07-01', date_string)
+  date_string <- gsub('(\\d{4})(Q|K)(4)', '\\1-10-01', date_string)
 
   # Fix months
-  df$time <- gsub('(\\d{4})(M)(\\d{2})', '\\1-\\3-01', df$time)
+  date_string <- gsub('(\\d{4})(M)(\\d{2})', '\\1-\\3-01', date_string)
+
+  # Convert to data format
+  if(!as_char) date_string <- lubridate::ymd(date_string)
 
   # Return df with fixed time
-  return(df)
+  return(date_string)
 }
 
 # get_variables ----

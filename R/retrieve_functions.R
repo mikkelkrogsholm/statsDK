@@ -5,6 +5,10 @@
 #' The function retrieves a data frame with the over all statistical subjects
 #' that can be pulled from Statistics Denmark.
 #'
+#' @param base_url is the base url for the API you wish to call. Statistics Denmark
+#'     can sometimes create custom API's that you can use by changing this
+#'     parameter.
+#'
 #' @return a tibble
 #' @export
 #'
@@ -12,17 +16,32 @@
 #' subjects <- statsDK::retrieve_subjects()
 #' dplyr::glimpse(subjects)
 
-retrieve_subjects <- function(){
+retrieve_subjects <- function(base_url = "http://api.statbank.dk/v1/"){
 
-  url <- "http://api.statbank.dk/v1/subjects?lang=en&format=JSON"
+  url <- paste0(base_url, "subjects?lang=en&format=JSON")
 
-  json_data <- jsonlite::fromJSON(url)
+  # Get data ----
+  get_data <- suppressWarnings(httr::GET(url))
 
-  json_data$subjects <- NULL
+  # Decide if error ----
+  if(get_data$status_code != 200){
+    content_data <- httr::content(get_data, "text", encoding = "UTF-8")
+    content_data <- jsonlite::fromJSON(content_data)
+    my_message <- paste(content_data$message, collapse = "\n")
+    message(my_message)
+    return(NULL)
+  } else {
+    message("Subjects collected succesfully")
+  }
 
-  json_data <- tibble::as.tibble(json_data)
+  content_data <- httr::content(get_data, "text", encoding = "UTF-8")
+  content_data <- jsonlite::fromJSON(content_data)
 
-  return(json_data)
+  content_data$subjects <- NULL
+
+  content_data <- tibble::as.tibble(content_data)
+
+  return(content_data)
 }
 
 # retrieve_tables ----
@@ -44,6 +63,10 @@ retrieve_subjects <- function(){
 #'   \item{variables}{A list of the variables in the tables.}
 #' }
 #'
+#' @param base_url is the base url for the API you wish to call. Statistics Denmark
+#'     can sometimes create custom API's that you can use by changing this
+#'     parameter.
+#'
 #' @return a tibble
 #' @export
 #'
@@ -51,15 +74,31 @@ retrieve_subjects <- function(){
 #' tables <- statsDK::retrieve_tables()
 #' dplyr::glimpse(tables)
 
-retrieve_tables <- function(){
+retrieve_tables <- function(base_url = "http://api.statbank.dk/v1/"){
 
-  url <- "http://api.statbank.dk/v1/tables?lang=en&format=JSON"
+  url <- paste0(base_url, "tables?lang=en&format=JSON")
 
-  json_data <- jsonlite::fromJSON(url)
+  # Get data ----
+  get_data <- suppressWarnings(httr::GET(url))
 
-  json_data <- tibble::as.tibble(json_data)
+  # Decide if error ----
+  if(get_data$status_code != 200){
+    content_data <- httr::content(get_data, "text", encoding = "UTF-8")
+    content_data <- jsonlite::fromJSON(content_data)
+    my_message <- paste(content_data$message, collapse = "\n")
+    message(my_message)
+    return(NULL)
+  } else {
+    message("Tables collected succesfully")
+  }
 
-  return(json_data)
+  content_data <- httr::content(get_data, "text", encoding = "UTF-8")
+
+  content_data <- jsonlite::fromJSON(content_data)
+
+  content_data <- tibble::as.tibble(content_data)
+
+  return(content_data)
 }
 
 # retrieve_metadata ----
@@ -81,22 +120,42 @@ retrieve_tables <- function(){
 #'
 #' @param table_id is the id of the table you want to call. You can get table ids
 #'     by calling the \link{retrieve_tables} function.
+#' @param base_url is the base url for the API you wish to call. Statistics Denmark
+#'     can sometimes create custom API's that you can use by changing this
+#'     parameter.
 #'
 #' @return a list
 #' @export
 #'
 #' @examples
-#' metadata <- statsDK::retrieve_metadata("FOLK1A")
+#' metadata <- statsDK::retrieve_metadata("PRIS111")
 #' dplyr::glimpse(metadata)
 
-retrieve_metadata <- function(table_id){
+retrieve_metadata <- function(table_id, base_url = "http://api.statbank.dk/v1/"){
 
-  url <- paste0("http://api.statbank.dk/v1/tableinfo/",
+  url <- paste0(base_url, "tableinfo/",
                 table_id, "?lang=en&format=JSON")
 
-  json_data <- jsonlite::fromJSON(url)
+  # Get data ----
+  get_data <- suppressWarnings(httr::GET(url))
 
-  return(json_data)
+  # Decide if error ----
+  if(get_data$status_code != 200){
+    content_data <- httr::content(get_data, "text", encoding = "UTF-8")
+    content_data <- jsonlite::fromJSON(content_data)
+    my_message <- paste(content_data$message, collapse = "\n")
+    my_message2 <- paste0('\nConsider calling retrieve_tables() to see available tables.')
+    message(paste(my_message, my_message2))
+    return(NULL)
+  } else {
+    message("Metadata collected succesfully")
+  }
+
+  content_data <- httr::content(get_data, "text", encoding = "UTF-8")
+
+  content_data <- jsonlite::fromJSON(content_data)
+
+  return(content_data)
 }
 
 # retrieve_data ----
@@ -111,6 +170,10 @@ retrieve_metadata <- function(table_id){
 #' @param ... are parameters you need to use to specify what data you want from
 #'     the API. See the data created by the \link{retrieve_metadata} function.
 #'     An * indicates ALL settings in the given parameter.
+#' @param base_url is the base url for the API you wish to call. Statistics Denmark
+#'     can sometimes create custom API's that you can use by changing this
+#'     parameter.
+#' @param lang whether to return the data in english or danish.
 #'
 #' @return a data frame
 #' @export
@@ -126,36 +189,84 @@ retrieve_metadata <- function(table_id){
 #'
 #' # Use the param and the settings columns from the variables data to set the
 #' # rigth values for the API call.
-#' df <- statsDK::retrieve_data("FOLK1A", ALDER = "*")
-#' dplyr::glimpse(df)
+#' df_en <- statsDK::retrieve_data("PRIS111", VAREGR = "000000", ENHED = "*",
+#'                                 Tid = paste(paste0("2017M0", 1:8), collapse = ","))
+#' dplyr::glimpse(df_en)
+#'
+#' df_da <- statsDK::retrieve_data("PRIS111", VAREGR = "000000", ENHED = "*",
+#'                                 Tid = paste(paste0("2017M0", 1:8), collapse = ","),
+#'                                 lang = "da")
+#' dplyr::glimpse(df_da)
 
-retrieve_data <- function(table_id, ...){
+retrieve_data <- function(table_id, ..., lang = "en", base_url = "http://api.statbank.dk/v1/"){
 
-  base_url <- paste0("http://api.statbank.dk/v1/data/",
-                     table_id, "/JSONSTAT?lang=en")
+  # Get table meta data ----
+  metadata <- suppressMessages(retrieve_metadata(table_id, base_url))
+  data_ids <- metadata$variables$id
+  data_text <- metadata$variables$text
 
-  params <- list(...)
-
-  if(length(params) > 0){
-    url_string <- paste0(names(params), "=", unlist(params))
-    url_string <- paste(url_string, collapse = "&")
-
-    url <- paste0(base_url, "&", url_string)
-
-    url <- utils::URLencode(url)
-
-    print(url)
+  # Choose baseurl based on language setting ----
+  if(lang != "en"){
+    base_url <- paste0(base_url, "data/",
+                       table_id, "/BULK?")
   } else {
-    url <- base_url
+    base_url <- paste0(base_url, "data/",
+                       table_id, "/BULK?lang=en")
   }
 
-  json_data <- rjstat::fromJSONstat(url)
+  # Params and url builder ----
+  params <- list(...)
 
-  data_name <- names(json_data)
-  message(paste("Retrieved", data_name))
+  # All params must be declared. Fill out if missing.
+  missing_ids <- data_ids[!(data_ids %in% names(params))]
+  if(length(missing_ids) > 0) message(paste("Autosetting missing values to * for:",
+                                            paste(missing_ids, collapse = ", ")))
+  missing_params <- lapply(missing_ids, function(i) "*")
+  names(missing_params) <- missing_ids
+  params <- c(params, missing_params)
 
-  json_data_df <- tibble::as.tibble(json_data[[1]])
+  # Build url
+  url_string <- paste0(names(params), "=", unlist(params))
+  url_string <- paste(url_string, collapse = "&")
 
-  return(json_data_df)
+  if(lang == "en"){ url <- paste0(base_url, "&", url_string)} else {
+    url <- paste0(base_url, url_string)
+  }
+
+  url <- utils::URLencode(url)
+
+  # Get data ----
+  # Notify user
+  message("Getting data. This can take a while, if the data is very large.")
+
+  get_data <- suppressWarnings(httr::GET(url))
+
+  # Decide if error ----
+  if(get_data$status_code != 200){
+    content_data <- httr::content(get_data, "text", encoding = "UTF-8")
+    content_data <- jsonlite::fromJSON(content_data)
+    my_message <- paste(content_data$message, collapse = "\n")
+    my_message2 <- paste0('\nConsider calling retrieve_metadata("', table_id,
+                          '") to see available parameters.')
+    message(paste(my_message, my_message2))
+    return(NULL)
+  } else {
+    message("Data collected succesfully")
+  }
+
+  # Extract data ----
+  content_data <- httr::content(get_data, "text")
+  content_data <- readr::read_csv2(content_data,
+                                   locale = readr::locale(
+                                     decimal_mark = ",",
+                                     grouping_mark = ".",
+                                     tz = "CET"
+                                   ))
+
+  # Add metadata as attribute ----
+  attr(content_data, "metadata") <- metadata
+
+  # Return the data ----
+  return(content_data)
+
 }
-

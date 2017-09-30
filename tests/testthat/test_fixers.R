@@ -6,13 +6,16 @@ library(testthat)
 context("Testing fix_time")
 
 folk_1 <- suppressMessages(
-  retrieve_data("FOLK1A", TID = "*")
+  retrieve_data("FOLK1A", TID = "*", ALDER = "IALT", CIVILSTAND = "TOT", lang = "da")
 )
-folk_2 <- fix_time(folk_1)
+
+folk_2 <- folk_1
+
+folk_2$TID <- fix_time(folk_2$TID)
 
 test_that("the dates are as expected", {
-  expect_true(all(stringr::str_detect(folk_1$time, "\\d{4}\\w\\d{1}")))
-  expect_true(all(stringr::str_detect(folk_2$time, "\\d{4}-\\d{2}-\\d{2}")))
+  expect_true(all(stringr::str_detect(folk_1$TID, "\\d{4}\\w\\d{1}")))
+  expect_true(all(stringr::str_detect(folk_2$TID, "\\d{4}-\\d{2}-\\d{2}")))
 })
 
 # get_variables ----

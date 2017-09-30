@@ -4,7 +4,12 @@
 \alias{retrieve_tables}
 \title{Retrieves an overview of the tables from Statistics Denmark}
 \usage{
-retrieve_tables()
+retrieve_tables(base_url = "http://api.statbank.dk/v1/")
+}
+\arguments{
+\item{base_url}{is the base url for the API you wish to call. Statistics Denmark
+can sometimes create custom API's that you can use by changing this
+parameter.}
 }
 \value{
 a tibble

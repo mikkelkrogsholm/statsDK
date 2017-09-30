@@ -38,14 +38,15 @@ test_that("we have indeed received meta data", {
 # retrieve_data ----
 context("Testing retrieve_data")
 
-folk <- suppressMessages(
-  retrieve_data("FOLK1A")
+pris <- suppressMessages(
+  retrieve_data("PRIS111", VAREGR = "000000", ENHED = "*",
+                Tid = paste(paste0("2017M0", 1:8), collapse = ","))
   )
 
 test_that("we have indeed received data", {
-  expect_true(is.data.frame(folk))
-  expect_true(nrow(folk) > 0)
-  expect_true(ncol(folk) > 0)
+  expect_true(is.data.frame(pris))
+  expect_true(nrow(pris) > 0)
+  expect_true(ncol(pris) > 0)
 })
 
 

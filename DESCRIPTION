@@ -1,7 +1,7 @@
 Package: statsDK
 Type: Package
 Title: A Wrapper for the API of Statistics Denmark
-Version: 0.1.0
+Version: 0.1.1
 Author: Mikkel Freltoft Krogsholm
 Maintainer: Mikkel Freltoft Krogsholm <mikkel@56n.dk>
 Description: Makes it possible through simple functions and commands to get and
@@ -13,14 +13,15 @@ Encoding: UTF-8
 LazyData: true
 Imports:
     jsonlite,
-    rjstat,
-    tidyverse,
     tibble,
     dplyr,
     tidyr,
     utils,
     stringr,
-    ggplot2
+    ggplot2,
+    httr,
+    readr,
+    lubridate
 Depends:
      R (>= 2.10)
 RoxygenNote: 6.0.1

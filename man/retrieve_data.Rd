@@ -4,7 +4,8 @@
 \alias{retrieve_data}
 \title{Retrieves a specific table from Statistics Denmark}
 \usage{
-retrieve_data(table_id, ...)
+retrieve_data(table_id, ..., lang = "en",
+  base_url = "http://api.statbank.dk/v1/")
 }
 \arguments{
 \item{table_id}{is the id of the table you want to call. You can get table ids
@@ -13,6 +14,12 @@ by calling the \link{retrieve_tables} function.}
 \item{...}{are parameters you need to use to specify what data you want from
 the API. See the data created by the \link{retrieve_metadata} function.
 An * indicates ALL settings in the given parameter.}
+
+\item{lang}{whether to return the data in english or danish.}
+
+\item{base_url}{is the base url for the API you wish to call. Statistics Denmark
+can sometimes create custom API's that you can use by changing this
+parameter.}
 }
 \value{
 a data frame
@@ -32,6 +39,12 @@ dplyr::glimpse(variables)
 
 # Use the param and the settings columns from the variables data to set the
 # rigth values for the API call.
-df <- statsDK::retrieve_data("FOLK1A", ALDER = "*")
-dplyr::glimpse(df)
+df_en <- statsDK::retrieve_data("PRIS111", VAREGR = "000000", ENHED = "*",
+                                Tid = paste(paste0("2017M0", 1:8), collapse = ","))
+dplyr::glimpse(df_en)
+
+df_da <- statsDK::retrieve_data("PRIS111", VAREGR = "000000", ENHED = "*",
+                                Tid = paste(paste0("2017M0", 1:8), collapse = ","),
+                                lang = "da")
+dplyr::glimpse(df_da)
 }

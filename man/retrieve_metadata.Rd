@@ -4,11 +4,15 @@
 \alias{retrieve_metadata}
 \title{Retrieves metadata for a specific table from Statistics Denmark}
 \usage{
-retrieve_metadata(table_id)
+retrieve_metadata(table_id, base_url = "http://api.statbank.dk/v1/")
 }
 \arguments{
 \item{table_id}{is the id of the table you want to call. You can get table ids
 by calling the \link{retrieve_tables} function.}
+
+\item{base_url}{is the base url for the API you wish to call. Statistics Denmark
+can sometimes create custom API's that you can use by changing this
+parameter.}
 }
 \value{
 a list
@@ -29,6 +33,6 @@ The function retrieves a list with a lot of metadata about a certain table.
 }
 }
 \examples{
-metadata <- statsDK::retrieve_metadata("FOLK1A")
+metadata <- statsDK::retrieve_metadata("PRIS111")
 dplyr::glimpse(metadata)
 }
