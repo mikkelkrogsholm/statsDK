@@ -13,10 +13,10 @@
 #' @export
 #'
 #' @examples
-#' subjects <- statsDK::retrieve_subjects()
+#' subjects <- statsDK::sdk_retrieve_subjects()
 #' dplyr::glimpse(subjects)
 
-retrieve_subjects <- function(base_url = "http://api.statbank.dk/v1/"){
+sdk_retrieve_subjects <- function(base_url = "http://api.statbank.dk/v1/"){
 
   url <- paste0(base_url, "subjects?lang=en&format=JSON")
 
@@ -39,7 +39,7 @@ retrieve_subjects <- function(base_url = "http://api.statbank.dk/v1/"){
 
   content_data$subjects <- NULL
 
-  content_data <- tibble::as.tibble(content_data)
+  content_data <- tibble::as_tibble(content_data)
 
   return(content_data)
 }
@@ -53,7 +53,7 @@ retrieve_subjects <- function(base_url = "http://api.statbank.dk/v1/"){
 #'
 #' \describe{
 #'   \item{id}{The id of the table. This is used when calling specific tables
-#'       later with \link{retrieve_metadata} or \link{retrieve_data}.}
+#'       later with \link{sdk_retrieve_metadata} or \link{sdk_retrieve_data}.}
 #'   \item{text}{A description of what the data in the table is about.}
 #'   \item{unit}{What unit the data is in.}
 #'   \item{updated}{When the table was last updated}
@@ -71,10 +71,10 @@ retrieve_subjects <- function(base_url = "http://api.statbank.dk/v1/"){
 #' @export
 #'
 #' @examples
-#' tables <- statsDK::retrieve_tables()
+#' tables <- statsDK::sdk_retrieve_tables()
 #' dplyr::glimpse(tables)
 
-retrieve_tables <- function(base_url = "http://api.statbank.dk/v1/"){
+sdk_retrieve_tables <- function(base_url = "http://api.statbank.dk/v1/"){
 
   url <- paste0(base_url, "tables?lang=en&format=JSON")
 
@@ -96,7 +96,7 @@ retrieve_tables <- function(base_url = "http://api.statbank.dk/v1/"){
 
   content_data <- jsonlite::fromJSON(content_data)
 
-  content_data <- tibble::as.tibble(content_data)
+  content_data <- tibble::as_tibble(content_data)
 
   return(content_data)
 }
@@ -115,11 +115,11 @@ retrieve_tables <- function(base_url = "http://api.statbank.dk/v1/"){
 #'   \item{documentation}{Link to a web page with detailed description of the data.}
 #'   \item{footnote}{A footnote if applicable.}
 #'   \item{variables}{Details about the variables in the table. Is very useful for
-#'       when using the \link{retrieve_data} function.}
+#'       when using the \link{sdk_retrieve_data} function.}
 #' }
 #'
 #' @param table_id is the id of the table you want to call. You can get table ids
-#'     by calling the \link{retrieve_tables} function.
+#'     by calling the \link{sdk_retrieve_tables} function.
 #' @param base_url is the base url for the API you wish to call. Statistics Denmark
 #'     can sometimes create custom API's that you can use by changing this
 #'     parameter.
@@ -128,10 +128,10 @@ retrieve_tables <- function(base_url = "http://api.statbank.dk/v1/"){
 #' @export
 #'
 #' @examples
-#' metadata <- statsDK::retrieve_metadata("PRIS111")
+#' metadata <- statsDK::sdk_retrieve_metadata("PRIS111")
 #' dplyr::glimpse(metadata)
 
-retrieve_metadata <- function(table_id, base_url = "http://api.statbank.dk/v1/"){
+sdk_retrieve_metadata <- function(table_id, base_url = "http://api.statbank.dk/v1/"){
 
   url <- paste0(base_url, "tableinfo/",
                 table_id, "?lang=en&format=JSON")
@@ -166,9 +166,9 @@ retrieve_metadata <- function(table_id, base_url = "http://api.statbank.dk/v1/")
 #' table ID and some parameters to the API.
 #'
 #' @param table_id is the id of the table you want to call. You can get table ids
-#'     by calling the \link{retrieve_tables} function.
+#'     by calling the \link{sdk_retrieve_tables} function.
 #' @param ... are parameters you need to use to specify what data you want from
-#'     the API. See the data created by the \link{retrieve_metadata} function.
+#'     the API. See the data created by the \link{sdk_retrieve_metadata} function.
 #'     An * indicates ALL settings in the given parameter.
 #' @param base_url is the base url for the API you wish to call. Statistics Denmark
 #'     can sometimes create custom API's that you can use by changing this
@@ -180,28 +180,28 @@ retrieve_metadata <- function(table_id, base_url = "http://api.statbank.dk/v1/")
 #'
 #' @examples
 #'
-#' metadata <- statsDK::retrieve_metadata("FOLK1A")
+#' metadata <- statsDK::sdk_retrieve_metadata("FOLK1A")
 #' dplyr::glimpse(metadata)
 #'
 #' # See the variables as a data frame
-#' variables <- statsDK::get_variables(metadata)
+#' variables <- statsDK::sdk_get_variables(metadata)
 #' dplyr::glimpse(variables)
 #'
 #' # Use the param and the settings columns from the variables data to set the
 #' # rigth values for the API call.
-#' df_en <- statsDK::retrieve_data("PRIS111", VAREGR = "000000", ENHED = "*",
+#' df_en <- statsDK::sdk_retrieve_data("PRIS111", VAREGR = "000000", ENHED = "*",
 #'                                 Tid = paste(paste0("2017M0", 1:8), collapse = ","))
 #' dplyr::glimpse(df_en)
 #'
-#' df_da <- statsDK::retrieve_data("PRIS111", VAREGR = "000000", ENHED = "*",
+#' df_da <- statsDK::sdk_retrieve_data("PRIS111", VAREGR = "000000", ENHED = "*",
 #'                                 Tid = paste(paste0("2017M0", 1:8), collapse = ","),
 #'                                 lang = "da")
 #' dplyr::glimpse(df_da)
 
-retrieve_data <- function(table_id, ..., lang = "en", base_url = "http://api.statbank.dk/v1/"){
+sdk_retrieve_data <- function(table_id, ..., lang = "en", base_url = "http://api.statbank.dk/v1/"){
 
   # Get table meta data ----
-  metadata <- suppressMessages(retrieve_metadata(table_id, base_url))
+  metadata <- suppressMessages(sdk_retrieve_metadata(table_id, base_url))
   data_ids <- metadata$variables$id
   data_text <- metadata$variables$text
 

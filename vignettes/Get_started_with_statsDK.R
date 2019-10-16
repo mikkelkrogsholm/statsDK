@@ -1,7 +1,7 @@
 ## ---- warning=FALSE, message=FALSE---------------------------------------
 library(statsDK); library(dplyr); library(stringr); library(lubridate); library(ggplot2); library(tidyr)
 
-tables <- retrieve_tables()
+tables <- sdk_retrieve_tables()
 
 glimpse(tables)
 
@@ -18,12 +18,12 @@ glimpse(marriage_tables)
 
 
 ## ------------------------------------------------------------------------
-viedag_meta <- retrieve_metadata("VIEDAG")
+viedag_meta <- sdk_retrieve_metadata("VIEDAG")
 
 glimpse(viedag_meta)
 
 ## ------------------------------------------------------------------------
-variables <- get_variables(viedag_meta)
+variables <- sdk_get_variables(viedag_meta)
 
 glimpse(variables)
 
@@ -36,7 +36,7 @@ variable_overview <- variables %>%
 variable_overview
 
 ## ------------------------------------------------------------------------
-VIEDAG <- retrieve_data("VIEDAG", Tid = "*", VDAG = "TOT", VIMDR = "006,012")
+VIEDAG <- sdk_retrieve_data("VIEDAG", Tid = "*", VDAG = "TOT", VIMDR = "006,012")
 names(VIEDAG) <- c("time", "day", "month", "count")
 
 ## ------------------------------------------------------------------------
@@ -46,11 +46,15 @@ glimpse(VIEDAG)
 
 VIEDAG$time <- ymd(paste0(VIEDAG$time, "-01-01"))
 
+my_y <- VIEDAG %>%
+  filter(time == max(time)) %>%
+  pull(count)
+
 ggplot(VIEDAG) +
   geom_line(aes(x = time, count, group = month)) +
-  annotate("text", x = max(VIEDAG$time) %m+% months(1) , y = c(3396, 1721), 
+  annotate("text", x = max(VIEDAG$time) %m+% months(1) , y = my_y, 
            label = c("June", "December"), hjust = 0) +
-  annotate("point", x = max(VIEDAG$time), y = c(3396, 1721)) +
+  annotate("point", x = max(VIEDAG$time), y = my_y) +
   xlim(min(VIEDAG$time), max(VIEDAG$time) %m+% years(1) ) +
   labs(y = "Total marriages for the given month", x = "Years") +
   theme_minimal()

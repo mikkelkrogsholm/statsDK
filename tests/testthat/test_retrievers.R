@@ -4,7 +4,7 @@ library(testthat)
 # retrieve_subjects ----
 context("Testing retrieve_subjects")
 
-subjects <- retrieve_subjects()
+subjects <- sdk_retrieve_subjects()
 
 test_that("we have indeed received data for subjects", {
   expect_true(is.data.frame(subjects))
@@ -15,7 +15,7 @@ test_that("we have indeed received data for subjects", {
 # retrieve_tables ----
 context("Testing retrieve_tables")
 
-tables <- retrieve_tables()
+tables <- sdk_retrieve_tables()
 
 test_that("we have indeed received data for tables", {
   expect_true(is.data.frame(tables))
@@ -27,7 +27,7 @@ test_that("we have indeed received data for tables", {
 # retrieve_metadata ----
 context("Testing retrieve_metadata")
 
-folk_meta <- retrieve_metadata("FOLK1A")
+folk_meta <- sdk_retrieve_metadata("FOLK1A")
 
 test_that("we have indeed received meta data", {
   expect_true(is.list(folk_meta))
@@ -39,7 +39,7 @@ test_that("we have indeed received meta data", {
 context("Testing retrieve_data")
 
 pris <- suppressMessages(
-  retrieve_data("PRIS111", VAREGR = "000000", ENHED = "*",
+  sdk_retrieve_data("PRIS111", VAREGR = "000000", ENHED = "*",
                 Tid = paste(paste0("2017M0", 1:8), collapse = ","))
   )
 

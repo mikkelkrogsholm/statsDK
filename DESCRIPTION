@@ -1,7 +1,7 @@
 Package: statsDK
 Type: Package
 Title: A Wrapper for the API of Statistics Denmark
-Version: 0.1.1
+Version: 1.0.0
 Author: Mikkel Freltoft Krogsholm
 Maintainer: Mikkel Freltoft Krogsholm <mikkel@56n.dk>
 Description: Makes it possible through simple functions and commands to get and
@@ -24,7 +24,7 @@ Imports:
     lubridate
 Depends:
      R (>= 2.10)
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 Suggests: knitr,
     rmarkdown,
     testthat

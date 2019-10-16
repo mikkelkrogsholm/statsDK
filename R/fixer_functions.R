@@ -13,14 +13,14 @@
 #' @export
 #'
 #' @examples
-#' df <- statsDK::retrieve_data("FOLK1A", TID = "*", ALDER = "IALT",
+#' df <- statsDK::sdk_retrieve_data("FOLK1A", TID = "*", ALDER = "IALT",
 #'                              CIVILSTAND = "TOT", lang = "da")
 #' dplyr::glimpse(df)
 #'
-#' df$TID <- statsDK::fix_time(df$TID)
+#' df$TID <- statsDK::sdk_fix_time(df$TID)
 #' dplyr::glimpse(df)
 #'
-fix_time <- function(date_string, as_char = FALSE){
+sdk_fix_time <- function(date_string, as_char = FALSE){
 
   # Fix quarters
   date_string <- gsub('(\\d{4})(Q|K)(1)', '\\1-01-01', date_string)
@@ -45,28 +45,30 @@ fix_time <- function(date_string, as_char = FALSE){
 #' Extracts the variables and sets them up in a tibble so it is easy to see
 #' what settings each parameter should have to get the desired data.
 #'
-#' @param metadata A list retrieved using the \link{retrieve_metadata} function.
+#' @param metadata A list retrieved using the \link{sdk_retrieve_metadata} function.
 #'
 #' @return a tibble
 #' @export
 #'
 #' @examples
-#' metadata <- statsDK::retrieve_metadata("BEV3A")
+#' metadata <- statsDK::sdk_retrieve_metadata("BEV3A")
 #' dplyr::glimpse(metadata)
 #'
 #' # See the variables as a data frame
-#' variables <- get_variables(metadata)
+#' variables <- sdk_get_variables(metadata)
 #' dplyr::glimpse(variables)
 #'
-get_variables <- function(metadata){
+sdk_get_variables <- function(metadata){
 
-  variables <- tidyr::unnest_(metadata$variables, "values")
+  variables_df <- tibble::as_tibble(metadata$variables)
 
-  variables <- variables[, c("id", "id1", "text1", "text")]
+  variables <- tidyr::unnest(variables_df, cols = "values", names_repair = "minimal")
 
-  names(variables) <- c("param", "setting", "description", "type")
+  names(variables) <- c("param", "type", "x", "y", "setting", "description")
 
-  variables <- tibble::as.tibble(variables)
+  variables <- variables[, c("param", "setting", "type", "description")]
+
+  variables <- tibble::as_tibble(variables)
 
   return(variables)
 
